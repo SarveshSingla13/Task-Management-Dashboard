@@ -1,23 +1,64 @@
-import logo from './logo.svg';
-import './App.css';
+import "./App.css";
+import Taskbar from "./Taskbar/Taskbar";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import List from "./List/List";
+import { useState } from "react";
 
 function App() {
+  const [formEnteries, setFormEnteries] = useState([]);
+
+  const [editingTask, setEditingTask] = useState(null);
+
+  const handleFormSubmit = (formData) => {
+    const newEntry = {
+      ...formData,
+      id:
+        formEnteries.length === 0
+          ? 1
+          : formEnteries[formEnteries.length - 1].id + 1,
+    };
+
+    setFormEnteries((prevEnteries) => [...prevEnteries, newEntry]);
+  };
+
+  const handleFormEdit = (taskToEdit, index) => {
+    setEditingTask(taskToEdit);
+  };
+
+  const handleEdit = (editedtask) => {
+    const updatedTasks = formEnteries.map((task) => {
+      return task.id === editedtask.id ? editedtask : task;
+    });
+    setFormEnteries(updatedTasks);
+    setEditingTask(null);
+  };
+
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      <BrowserRouter>
+        <Routes>
+          <Route
+            path="/"
+            element={
+              <Taskbar
+                onFormSubmit={handleFormSubmit}
+                editingTask={editingTask}
+                onUpdateTask={handleEdit}
+              />
+            }
+          />
+          <Route
+            path="/list"
+            element={
+              <List
+                formEnteries={formEnteries}
+                setFormEnteries={setFormEnteries}
+                onDataReceived={handleFormEdit}
+              />
+            }
+          />
+        </Routes>
+      </BrowserRouter>
     </div>
   );
 }
